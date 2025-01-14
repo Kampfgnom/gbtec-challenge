@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: gbtec-challenge
+
+  jpa:
+    hibernate:
+      ddl-auto: validate # Ensures schema matches entity definitions (use none or update in non-prod environments)
+    show-sql: true # Enable to see SQL queries in logs
+    properties:
+      hibernate:
+        format_sql: true # Formats SQL for easier readability in logs
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    open-in-view: false
+
+gbtec:
+  email:
+    spam:
+      cron: 0 0 10 * * ?
+      email: carl@gbtec.com
+logging:
+  level:
+    org.hibernate.orm.jdbc.bind: trace
