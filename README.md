@@ -26,7 +26,7 @@ Quite the standard setup:
 
 Honestly, not a lot of architecture to see here.
 
-* Layered architecture, as opposed to onion/hexagonal, because with WebMVC and JPA decoupling the layers is not worth the effort
+* Layered architecture (Contoller, Service, Persistence), as opposed to onion/hexagonal, because with WebMVC and JPA decoupling the layers is not worth the effort
 * Separate DTOs (as Java Records) from Entities (as standard Java classes), because that's *definitely* worth the low effort
 * Package-per-domain/use-case, because I find this better than package-per-layer for reasons I can elaborate
 * Flat/no-packages until modules get too big, and not earlier (though the Java "one thing per file" convention makes me re-consider this opinion...)
