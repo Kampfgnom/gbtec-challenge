@@ -16,7 +16,12 @@ public class EmailController {
         this.emailService = emailService;
     }
 
-    // Create a new email
+    @GetMapping
+    public ResponseEntity<EmailsDTO> getEmails() {
+        EmailsDTO emails = emailService.findAll();
+        return ResponseEntity.ok(emails);
+    }
+
     @PostMapping
     public ResponseEntity<?> createEmail(@RequestBody CreateEmailDTO createEmailDTO) {
         try {
@@ -28,7 +33,17 @@ public class EmailController {
         }
     }
 
-    // Get an email by ID
+    @PostMapping("/bulk")
+    public ResponseEntity<?> createEmails(@RequestBody CreateEmailsDTO createEmailsDTO) {
+        try {
+            EmailsDTO savedEmails = emailService.createEmails(createEmailsDTO);
+            return ResponseEntity.ok(savedEmails);
+        } catch (IllegalArgumentException e) {
+            ProblemDetail problem = createProblemDetail(HttpStatus.BAD_REQUEST, "Invalid email data", e.getMessage());
+            return ResponseEntity.badRequest().body(problem);
+        }
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<?> getEmail(@PathVariable Long id) {
         try {
@@ -40,7 +55,6 @@ public class EmailController {
         }
     }
 
-    // Update an email by ID
     @PutMapping("/{id}")
     public ResponseEntity<?> updateEmail(@PathVariable Long id, @RequestBody UpdateEmailDTO updateEmailDTO) {
         try {

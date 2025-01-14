@@ -45,5 +45,4 @@ public class EmailMapper {
     private static List<EmailAddressDTO> toDTOList(List<EmailAddress> entities) {
         return entities.stream().map(EmailMapper::toDTO).collect(Collectors.toList());
     }
-
 }

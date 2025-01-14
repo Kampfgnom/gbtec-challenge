@@ -16,8 +16,8 @@ public class EmailService {
     }
 
     @Transactional(readOnly = true)
-    public List<EmailDTO> findAll() {
-        return emailRepository.findAll().stream().map(EmailMapper::toDTO).toList();
+    public EmailsDTO findAll() {
+        return new EmailsDTO(emailRepository.findAll().stream().map(EmailMapper::toDTO).toList());
     }
 
     @Transactional(readOnly = true)
@@ -25,6 +25,19 @@ public class EmailService {
         EmailEntity emailEntity = emailRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Email not found with ID: " + id));
         return EmailMapper.toDTO(emailEntity);
+    }
+
+    @Transactional
+    public EmailsDTO createEmails(CreateEmailsDTO createEmailsDTO) {
+        List<EmailEntity> entities = createEmailsDTO.emails().stream().map(email -> {
+            EmailEntity emailEntity = EmailMapper.toEntity(email);
+            emailEntity.setState(EmailEntity.EmailState.DRAFT);
+            return emailEntity;
+        }).toList();
+
+        List<EmailEntity> savedEntities = emailRepository.saveAll(entities);
+
+        return new EmailsDTO(savedEntities.stream().map(EmailMapper::toDTO).toList());
     }
 
     @Transactional

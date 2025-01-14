@@ -60,7 +60,7 @@ public class EmailSpamSchedulerTests {
 
         verify(emailService, timeout(2500).atLeast(2)).markEmailsAsSpam(eq(spamSender));
 
-        List<EmailDTO> updatedEmails = emailService.findAll();
+        List<EmailDTO> updatedEmails = emailService.findAll().emails();
 
         assertThat(updatedEmails)
                 .filteredOn(email -> email.from().email().equals(spamSender))
