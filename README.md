@@ -7,6 +7,7 @@ In this repository I solve a coding challenge.
 Quite the standard setup:
 
 * Java 21 - because LTS
+  * Sidenote: I've not done a lot of Java in a while (apart from reading library code and making small adjustments). Now I know that Kotlin is quite a lot more ergonomic...
 * Spring Boot 3
 * Spring WebMVC for the API
 * Spring Data JPA for persistence
