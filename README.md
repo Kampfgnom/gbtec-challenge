@@ -13,7 +13,7 @@ Quite the standard setup:
 * Standard Spring scheduler for scheduling
 * springdoc-openapi brings a Swagger UI
 * docker compose for local development
-* PostgreSQL as a database (14 because that's what Azure currently has)
+* PostgreSQL as a database (16 because that's what Azure currently has)
 * Flyway for schema migrations
 * Some devtools, incl. spring-boot-docker-compose
 * Tests in JUnit
