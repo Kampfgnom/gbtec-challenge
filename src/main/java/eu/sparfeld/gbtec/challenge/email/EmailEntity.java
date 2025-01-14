@@ -48,7 +48,6 @@ public class EmailEntity {
     @Column(nullable = false)
     private Instant updatedAt;
 
-    // Getters and setters
     public Long getId() {
         return id;
     }

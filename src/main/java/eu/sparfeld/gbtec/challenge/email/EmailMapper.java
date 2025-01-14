@@ -30,7 +30,6 @@ public class EmailMapper {
         );
     }
 
-    // Conversion between EmailAddress and EmailAddressDTO
     private static EmailAddress toEntity(EmailAddressDTO dto) {
         return new EmailAddress(dto.email());
     }
@@ -39,7 +38,6 @@ public class EmailMapper {
         return new EmailAddressDTO(entity.getEmail());
     }
 
-    // Conversion for lists
     public static List<EmailAddress> toEntityList(List<EmailAddressDTO> dtos) {
         return dtos.stream().map(EmailMapper::toEntity).collect(Collectors.toList());
     }
