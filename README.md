@@ -16,7 +16,7 @@ Quite the standard setup:
 * PostgreSQL as a database (16 because that's what Azure currently has)
 * Flyway for schema migrations
 * Some devtools, incl. spring-boot-docker-compose
-* Tests in JUnit
+* Tests in JUnit with assertj and mockito
   * Service unit tests
   * Controller unit tests with the new MockMvcTester
   * Integration tests with testcontainers and the new WebTestClient and awaitility
