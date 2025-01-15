@@ -1,5 +1,6 @@
 package eu.sparfeld.gbtec.challenge.email;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +19,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
 @WebMvcTest(EmailController.class)
-public class EmailControllerTest {
+class EmailControllerTest {
     @Autowired
     private MockMvcTester mockMvc;
     @MockitoBean
@@ -28,7 +29,7 @@ public class EmailControllerTest {
     private ObjectMapper objectMapper;
 
     @Test
-    void getEmail_shouldReturnEmailDTO() throws Exception {
+    void getEmail_shouldReturnEmailDTO() {
         EmailDTO mockEmail = new EmailDTO(
                 1L,
                 new EmailAddressDTO("test@example.com"),
@@ -36,7 +37,7 @@ public class EmailControllerTest {
                 List.of(new EmailAddressDTO("cc@example.com")),
                 "Subject",
                 "Message",
-                "DRAFT",
+                EmailStateDTO.DRAFT,
                 Instant.ofEpochMilli(123),
                 Instant.ofEpochMilli(234)
         );
@@ -52,7 +53,7 @@ public class EmailControllerTest {
     }
 
     @Test
-    void getEmail_shouldReturn400() {
+    void getEmail_shouldReturn404WhenEmailDoesNotExist() {
         given(emailService.findById(1L)).willThrow(IllegalArgumentException.class);
 
         assertThat(mockMvc.get().uri("/emails/1"))
@@ -61,7 +62,7 @@ public class EmailControllerTest {
     }
 
     @Test
-    void createEmail_shouldReturnEmailDTO() throws Exception {
+    void createEmail_shouldReturnEmailDTO() throws JsonProcessingException {
         CreateEmailDTO mockRequest = new CreateEmailDTO(
                 new EmailAddressDTO("test@example.com"),
                 List.of(new EmailAddressDTO("recipient@example.com")),
@@ -76,7 +77,7 @@ public class EmailControllerTest {
                 List.of(new EmailAddressDTO("cc@example.com")),
                 "Subject",
                 "Message",
-                "DRAFT",
+                EmailStateDTO.DRAFT,
                 Instant.ofEpochMilli(123),
                 Instant.ofEpochMilli(234)
         );
@@ -98,20 +99,20 @@ public class EmailControllerTest {
     }
 
     @Test
-    void createEmail_shouldReturn400() throws Exception {
+    void createEmail_shouldReturn400() {
 
         assertThat(mockMvc.post().uri("/emails"))
                 .hasStatus(HttpStatus.BAD_REQUEST);
     }
 
     @Test
-    void updateEmail_shouldReturnEmailDTO() throws Exception {
+    void updateEmail_shouldReturnEmailDTO() throws JsonProcessingException {
         UpdateEmailDTO mockRequest = new UpdateEmailDTO(
                 List.of(new EmailAddressDTO("recipient@example.com")),
                 List.of(new EmailAddressDTO("cc@example.com")),
                 "Subject",
                 "Message",
-                "SENT"
+                EmailStateDTO.SENT
         );
         EmailDTO mockEmail = new EmailDTO(
                 1L,
@@ -120,7 +121,7 @@ public class EmailControllerTest {
                 List.of(new EmailAddressDTO("cc@example.com")),
                 "Subject",
                 "Message",
-                "SENT",
+                EmailStateDTO.SENT,
                 Instant.ofEpochMilli(123),
                 Instant.ofEpochMilli(234)
         );
@@ -142,16 +143,16 @@ public class EmailControllerTest {
     }
 
     @Test
-    void updateEmail_shouldReturn404() throws Exception {
+    void updateEmail_shouldReturn404WhenTheEmailDoesNotExist() throws JsonProcessingException {
         UpdateEmailDTO mockRequest = new UpdateEmailDTO(
                 List.of(new EmailAddressDTO("recipient@example.com")),
                 List.of(new EmailAddressDTO("cc@example.com")),
                 "Subject",
                 "Message",
-                "SENT"
+                EmailStateDTO.SENT
         );
 
-        given(emailService.updateEmail(eq(1L), any())).willThrow(IllegalArgumentException.class);
+        given(emailService.updateEmail(eq(1L), any())).willThrow(new IllegalArgumentException("Email does not exist"));
 
         assertThat(mockMvc.put().uri("/emails/1")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -161,20 +162,31 @@ public class EmailControllerTest {
     }
 
     @Test
-    void updateEmail_shouldReturn400() throws Exception {
+    void updateEmail_shouldReturn400WhenInputDataIsInvalid() throws JsonProcessingException {
         UpdateEmailDTO mockRequest = new UpdateEmailDTO(
                 List.of(new EmailAddressDTO("recipient@example.com")),
                 List.of(new EmailAddressDTO("cc@example.com")),
                 "Subject",
                 "Message",
-                "SENT"
+                EmailStateDTO.SENT
         );
 
-        given(emailService.updateEmail(eq(1L), any())).willThrow(IllegalStateException.class);
+        given(emailService.updateEmail(eq(1L), any())).willThrow(new IllegalStateException("Invalid input data for email"));
 
         assertThat(mockMvc.put().uri("/emails/1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(mockRequest)))
+                .hasStatus(HttpStatus.BAD_REQUEST)
+                .hasContentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON);
+    }
+
+    @Test
+    void updateEmail_shouldReturn400WhenInputDataIsSyntacticallyInvalid() {
+        assertThat(mockMvc.put().uri("/emails/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                        {"state": "NOT_A_VALID_STATE" }
+                        """))
                 .hasStatus(HttpStatus.BAD_REQUEST)
                 .hasContentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON);
     }

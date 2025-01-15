@@ -54,7 +54,7 @@ public class EmailService {
                 .orElseThrow(() -> new IllegalArgumentException("Email not found with ID: " + id));
 
         if (updateEmailDTO.state() != null) {
-            EmailEntity.EmailState newState = EmailEntity.EmailState.valueOf(updateEmailDTO.state());
+            EmailEntity.EmailState newState = EmailMapper.toEntityState(updateEmailDTO.state());
             validateStateTransition(emailEntity.getState(), newState);
             emailEntity.setState(newState);
         }

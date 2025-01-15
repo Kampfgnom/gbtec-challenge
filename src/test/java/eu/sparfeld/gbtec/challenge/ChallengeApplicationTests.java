@@ -10,6 +10,7 @@ class ChallengeApplicationTests {
 
     @Test
     void contextLoads() {
+        // Just tests whether the context loads
     }
 
 }

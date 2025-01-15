@@ -2,6 +2,7 @@ plugins {
     java
     id("org.springframework.boot") version "3.4.1"
     id("io.spring.dependency-management") version "1.1.7"
+    id("name.remal.sonarlint") version "4.3.4"
 }
 
 group = "eu.sparfeld.gbtec"
@@ -39,4 +40,8 @@ dependencies {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+}
+
+sonarLint {
+    sonarProperty("sonarLint.nodeJs.logNodeJsNotFound", false)
 }

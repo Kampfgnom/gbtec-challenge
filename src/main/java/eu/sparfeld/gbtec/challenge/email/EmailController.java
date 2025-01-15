@@ -4,6 +4,7 @@ package eu.sparfeld.gbtec.challenge.email;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -23,56 +24,47 @@ public class EmailController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createEmail(@RequestBody CreateEmailDTO createEmailDTO) {
-        try {
-            EmailDTO savedEmail = emailService.createEmail(createEmailDTO);
-            return ResponseEntity.ok(savedEmail);
-        } catch (IllegalArgumentException e) {
-            ProblemDetail problem = createProblemDetail(HttpStatus.BAD_REQUEST, "Invalid email data", e.getMessage());
-            return ResponseEntity.badRequest().body(problem);
-        }
+    public ResponseEntity<EmailDTO> createEmail(@RequestBody CreateEmailDTO createEmailDTO) {
+        EmailDTO savedEmail = emailService.createEmail(createEmailDTO);
+        return ResponseEntity.ok(savedEmail);
     }
 
     @PostMapping("/bulk")
-    public ResponseEntity<?> createEmails(@RequestBody CreateEmailsDTO createEmailsDTO) {
-        try {
-            EmailsDTO savedEmails = emailService.createEmails(createEmailsDTO);
-            return ResponseEntity.ok(savedEmails);
-        } catch (IllegalArgumentException e) {
-            ProblemDetail problem = createProblemDetail(HttpStatus.BAD_REQUEST, "Invalid email data", e.getMessage());
-            return ResponseEntity.badRequest().body(problem);
-        }
+    public ResponseEntity<EmailsDTO> createEmails(@RequestBody CreateEmailsDTO createEmailsDTO) {
+        EmailsDTO savedEmails = emailService.createEmails(createEmailsDTO);
+        return ResponseEntity.ok(savedEmails);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getEmail(@PathVariable Long id) {
-        try {
-            EmailDTO email = emailService.findById(id);
-            return ResponseEntity.ok(email);
-        } catch (IllegalArgumentException e) {
-            ProblemDetail problem = createProblemDetail(HttpStatus.NOT_FOUND, "Email not found", e.getMessage());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(problem);
-        }
+    public ResponseEntity<EmailDTO> getEmail(@PathVariable Long id) {
+        EmailDTO email = emailService.findById(id);
+        return ResponseEntity.ok(email);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateEmail(@PathVariable Long id, @RequestBody UpdateEmailDTO updateEmailDTO) {
-        try {
-            EmailDTO updatedEmail = emailService.updateEmail(id, updateEmailDTO);
-            return ResponseEntity.ok(updatedEmail);
-        } catch (IllegalStateException e) {
-            ProblemDetail problem = createProblemDetail(HttpStatus.BAD_REQUEST, "Update conflict", e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(problem);
-        } catch (IllegalArgumentException e) {
-            ProblemDetail problem = createProblemDetail(HttpStatus.NOT_FOUND, "Email not found", e.getMessage());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(problem);
-        }
+    public ResponseEntity<EmailDTO> updateEmail(@PathVariable Long id, @RequestBody UpdateEmailDTO updateEmailDTO) {
+        EmailDTO updatedEmail = emailService.updateEmail(id, updateEmailDTO);
+        return ResponseEntity.ok(updatedEmail);
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ProblemDetail> createProblemDetail(IllegalArgumentException e) {
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, e.getMessage());
+        problemDetail.setTitle("Not found");
+        return ResponseEntity.status(problemDetail.getStatus()).body(problemDetail);
+    }
 
-    private ProblemDetail createProblemDetail(HttpStatus status, String title, String detail) {
-        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(status, detail);
-        problemDetail.setTitle(title);
-        return problemDetail;
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<ProblemDetail> createProblemDetail(IllegalStateException e) {
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, e.getMessage());
+        problemDetail.setTitle("Invalid input data");
+        return ResponseEntity.status(problemDetail.getStatus()).body(problemDetail);
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ProblemDetail> createProblemDetail(HttpMessageNotReadableException e) {
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, e.getMessage());
+        problemDetail.setTitle("Invalid input data");
+        return ResponseEntity.status(problemDetail.getStatus()).body(problemDetail);
     }
 }

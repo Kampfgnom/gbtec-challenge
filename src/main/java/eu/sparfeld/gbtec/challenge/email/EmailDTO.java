@@ -10,7 +10,7 @@ public record EmailDTO(
         List<EmailAddressDTO> cc,
         String subject,
         String message,
-        String state,
+        EmailStateDTO state,
         Instant createdAt,
         Instant updatedAt
 ) {

@@ -1,9 +1,11 @@
 package eu.sparfeld.gbtec.challenge.email;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class EmailMapper {
+    private EmailMapper() {
+        throw new IllegalStateException("Utility class");
+    }
 
     public static EmailEntity toEntity(CreateEmailDTO dto) {
         EmailEntity entity = new EmailEntity();
@@ -24,7 +26,7 @@ public class EmailMapper {
                 toDTOList(entity.getCc()),
                 entity.getSubject(),
                 entity.getMessage(),
-                entity.getState().name(),
+                toDTO(entity.getState()),
                 entity.getCreatedAt(),
                 entity.getUpdatedAt()
         );
@@ -39,10 +41,28 @@ public class EmailMapper {
     }
 
     public static List<EmailAddress> toEntityList(List<EmailAddressDTO> dtos) {
-        return dtos.stream().map(EmailMapper::toEntity).collect(Collectors.toList());
+        return dtos.stream().map(EmailMapper::toEntity).toList();
     }
 
     private static List<EmailAddressDTO> toDTOList(List<EmailAddress> entities) {
-        return entities.stream().map(EmailMapper::toDTO).collect(Collectors.toList());
+        return entities.stream().map(EmailMapper::toDTO).toList();
+    }
+
+    private static EmailStateDTO toDTO(EmailEntity.EmailState state) {
+        return switch (state) {
+            case DRAFT -> EmailStateDTO.DRAFT;
+            case SENT -> EmailStateDTO.SENT;
+            case DELETED -> EmailStateDTO.DELETED;
+            case SPAM -> EmailStateDTO.SPAM;
+        };
+    }
+
+    static EmailEntity.EmailState toEntityState(EmailStateDTO state) {
+        return switch (state) {
+            case DRAFT -> EmailEntity.EmailState.DRAFT;
+            case SENT -> EmailEntity.EmailState.SENT;
+            case DELETED -> EmailEntity.EmailState.DELETED;
+            case SPAM -> EmailEntity.EmailState.SPAM;
+        };
     }
 }

@@ -10,7 +10,6 @@ import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 
@@ -21,7 +20,7 @@ import static org.mockito.Mockito.verify;
                 "gbtec.email.spam.cron=*/1 * * * * ?" // every second
         }
 )
-public class EmailSpamSchedulerTests {
+class EmailSpamSchedulerTests {
     @MockitoSpyBean
     private EmailService emailService;
 
@@ -48,7 +47,7 @@ public class EmailSpamSchedulerTests {
                 "Message"
         ));
 
-        emailService.updateEmail(secondEmail.id(), new UpdateEmailDTO(null, null, null, null, "SENT"));
+        emailService.updateEmail(secondEmail.id(), new UpdateEmailDTO(null, null, null, null, EmailStateDTO.SENT));
 
         emailService.createEmail(new CreateEmailDTO(
                 new EmailAddressDTO("test@example.com"),
@@ -58,18 +57,18 @@ public class EmailSpamSchedulerTests {
                 "Message"
         ));
 
-        verify(emailService, timeout(2500).atLeast(2)).markEmailsAsSpam(eq(spamSender));
+        verify(emailService, timeout(2500).atLeast(2)).markEmailsAsSpam(spamSender);
 
         List<EmailDTO> updatedEmails = emailService.findAll().emails();
 
         assertThat(updatedEmails)
                 .filteredOn(email -> email.from().email().equals(spamSender))
                 .extracting(EmailDTO::state)
-                .containsOnly(String.valueOf(EmailEntity.EmailState.SPAM));
+                .containsOnly(EmailStateDTO.SPAM);
 
         assertThat(updatedEmails)
                 .filteredOn(email -> !email.from().email().equals(spamSender))
                 .extracting(EmailDTO::state)
-                .containsOnly(String.valueOf(EmailEntity.EmailState.DRAFT));
+                .containsOnly(EmailStateDTO.DRAFT);
     }
 }

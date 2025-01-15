@@ -15,7 +15,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(SpringExtension.class)
-public class EmailServiceTests {
+class EmailServiceTests {
 
     @Mock
     private EmailRepository emailRepository;
@@ -24,7 +24,7 @@ public class EmailServiceTests {
     private EmailService emailService;
 
     @Test
-    public void findById_shouldReturnEmailDTO_whenEmailExists() {
+    void findById_shouldReturnEmailDTO_whenEmailExists() {
         EmailEntity mockEntity = new EmailEntity();
         mockEntity.setId(1L);
         mockEntity.setFrom(new EmailAddress("test@example.com"));
@@ -41,12 +41,12 @@ public class EmailServiceTests {
         assertThat(result)
                 .isNotNull()
                 .extracting(EmailDTO::subject, EmailDTO::state)
-                .containsExactly("Test Subject", "DRAFT");
+                .containsExactly("Test Subject", EmailStateDTO.DRAFT);
         verify(emailRepository, times(1)).findById(1L);
     }
 
     @Test
-    public void findById_shouldThrowException_whenEmailDoesNotExist() {
+    void findById_shouldThrowException_whenEmailDoesNotExist() {
         when(emailRepository.findById(1L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> emailService.findById(1L))
@@ -56,7 +56,7 @@ public class EmailServiceTests {
     }
 
     @Test
-    public void updateEmail_shouldUpdateFields_whenStateIsDraft() {
+    void updateEmail_shouldUpdateFields_whenStateIsDraft() {
         EmailEntity mockEntity = new EmailEntity();
         mockEntity.setId(1L);
         mockEntity.setFrom(new EmailAddress("test@example.com"));
@@ -71,7 +71,7 @@ public class EmailServiceTests {
                 List.of(new EmailAddressDTO("newcc@example.com")),
                 "New Subject",
                 "New Message",
-                "DRAFT"
+                EmailStateDTO.DRAFT
         );
 
         when(emailRepository.findById(1L)).thenReturn(Optional.of(mockEntity));
@@ -92,7 +92,7 @@ public class EmailServiceTests {
     }
 
     @Test
-    public void updateEmail_shouldThrowException_whenStateIsNotDraft() {
+    void updateEmail_shouldThrowException_whenStateIsNotDraft() {
         EmailEntity mockEntity = new EmailEntity();
         mockEntity.setId(1L);
         mockEntity.setState(EmailEntity.EmailState.SENT);
@@ -109,7 +109,7 @@ public class EmailServiceTests {
 
 
     @Test
-    public void markEmailsAsSpam_shouldUpdateStateToSpam_forMatchingEmails() {
+    void markEmailsAsSpam_shouldUpdateStateToSpam_forMatchingEmails() {
         String spamRecipient = "carl@gbtec.com";
 
         EmailEntity email1 = new EmailEntity();
@@ -138,7 +138,7 @@ public class EmailServiceTests {
     }
 
     @Test
-    public void markEmailsAsSpam_shouldDoNothing_whenNoEmailsMatch() {
+    void markEmailsAsSpam_shouldDoNothing_whenNoEmailsMatch() {
         String spamRecipient = "nonexistent@gbtec.com";
 
         when(emailRepository.findByFrom_Email(spamRecipient)).thenReturn(List.of());

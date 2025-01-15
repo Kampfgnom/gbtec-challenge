@@ -8,6 +8,6 @@ public record UpdateEmailDTO(
         List<EmailAddressDTO> cc,
         String subject,
         String message,
-        String state
+        EmailStateDTO state
 ) {
 }

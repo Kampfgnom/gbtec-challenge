@@ -24,7 +24,7 @@ import static org.awaitility.Awaitility.await;
         }
 )
 @Import(TestcontainersConfiguration.class)
-public class EmailIntegrationTests {
+class EmailIntegrationTests {
     WebTestClient client;
     @Autowired
     WebApplicationContext wac;
@@ -35,7 +35,7 @@ public class EmailIntegrationTests {
     }
 
     @Test
-    void getEmail_shouldReturnEmailDTO() throws Exception {
+    void getEmail_shouldReturnEmailDTO() {
         CreateEmailDTO mockRequest = new CreateEmailDTO(
                 new EmailAddressDTO("test@example.com"),
                 List.of(new EmailAddressDTO("recipient@example.com")),
@@ -64,7 +64,7 @@ public class EmailIntegrationTests {
     }
 
     @Test
-    void updateEmail_shouldUpdateEmail() throws Exception {
+    void updateEmail_shouldUpdateEmail() {
         CreateEmailDTO mockRequest = new CreateEmailDTO(
                 new EmailAddressDTO("test@example.com"),
                 List.of(new EmailAddressDTO("recipient@example.com")),
@@ -78,7 +78,7 @@ public class EmailIntegrationTests {
                 List.of(new EmailAddressDTO("cc2@example.com")),
                 "Subject2",
                 "Message2",
-                "DRAFT"
+                EmailStateDTO.DRAFT
         );
 
         Long id = Objects.requireNonNull(client.post().uri("/emails")
@@ -125,7 +125,7 @@ public class EmailIntegrationTests {
                 null,
                 null,
                 null,
-                "SENT"
+                EmailStateDTO.SENT
         );
 
         Long id = Objects.requireNonNull(client.post().uri("/emails")
@@ -164,7 +164,7 @@ public class EmailIntegrationTests {
                 null,
                 null,
                 null,
-                "SENT"
+                EmailStateDTO.SENT
         );
 
         UpdateEmailDTO updateRequest2 = new UpdateEmailDTO(
@@ -172,7 +172,7 @@ public class EmailIntegrationTests {
                 null,
                 null,
                 null,
-                "DRAFT"
+                EmailStateDTO.DRAFT
         );
         Long id = Objects.requireNonNull(client.post().uri("/emails")
                 .bodyValue(mockRequest)
@@ -209,7 +209,7 @@ public class EmailIntegrationTests {
                 null,
                 null,
                 null,
-                "SENT"
+                EmailStateDTO.SENT
         );
 
         UpdateEmailDTO updateRequest2 = new UpdateEmailDTO(
